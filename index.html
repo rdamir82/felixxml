@@ -20,7 +20,7 @@
     </div>
   <hr>
   <div class="row">
-    <div class="col-6">
+    <div class="col-12 col-md-6">
       <div class="card">
         <div class="card-body">
           <h4>od: <span id="izdavaoc"></span></h4>
@@ -30,7 +30,7 @@
         </div>
       </div>
     </div>
-    <div class="col-6">
+    <div class="col-12 col-md-6">
       <div class="card">
         <div class="card-body">
           <h4>za: <span id="primaoc"></span></h4>
@@ -49,35 +49,37 @@
   </div>
   <hr>
 
+  <div class="table-responsive">
+    <table class="table table-hover table-responsive">
+      <thead>
+        <tr>
+          <th scope="col">Barcode</th>
+          <th scope="col">Naziv</th>
+          <th scope="col">P.Stopa</th>
+          <th scope="col" class='text-end'>Kol</th>
+          <th scope="col" class='text-end'>Cena</th>
+          <th scope="col" class='text-end'>Sa Rabatom</th>
+          <th scope="col" class='text-end'>Ukupno</th>
+        </tr>
+      </thead>
+      <tbody id="artikli">
+        
+      </tbody>
+    </table>
+  </div>
 
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th scope="col">Barcode</th>
-        <th scope="col">Naziv</th>
-        <th scope="col">P.Stopa</th>
-        <th scope="col" class='text-end'>Kol</th>
-        <th scope="col" class='text-end'>Cena</th>
-        <th scope="col" class='text-end'>Sa Rabatom</th>
-        <th scope="col" class='text-end'>Ukupno</th>
-      </tr>
-    </thead>
-    <tbody id="artikli">
-      
-    </tbody>
-  </table>
-
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th scope="col">naziv</th>
-        <th scope="col" class="text-end">Ukupno</th>
-      </tr>
-    </thead>
-    <tbody id="totali">
-      
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">naziv</th>
+          <th scope="col" class="text-end">Ukupno</th>
+        </tr>
+      </thead>
+      <tbody id="totali">  
+      </tbody>
+    </table>
+  </div>
 
 </div>
 <script type="text/javascript" src="xml2json.js"></script>
