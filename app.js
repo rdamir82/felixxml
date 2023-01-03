@@ -157,8 +157,8 @@ const totaliData = inovice.TaxTotal
 
 totaliTabla.innerHTML = 
 `
-<tr class='table-light' ><th scope='row' class="text-end">Ukupno po tarinoj stopi od 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[0].TaxableAmount["#text"])}</td>
-<tr class='table-light' ><th scope='row' class="text-end">Ukupno po tarinoj stopi od 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[1].TaxableAmount["#text"])}</td>
+<tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 10%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[0].TaxableAmount["#text"])}</td>
+<tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[1].TaxableAmount["#text"])}</td>
 <tr class='table-light' ><th scope='row' class="text-end">Ukupno bez poreza:</th><td class="text-end">${formatMoney(inovice.LegalMonetaryTotal.TaxExclusiveAmount["#text"])}</td>
 <tr class='table-light' ><th scope='row' class="text-end">Porez za tarifu od 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[0].TaxAmount["#text"])}</td>
 <tr class='table-light' ><th scope='row' class="text-end">Porez za tarifu od 10%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[1].TaxAmount["#text"])}</td>
