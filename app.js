@@ -78,13 +78,14 @@ function renderData(incommingData) {
 const documentHeader = incommingData.DocumentEnvelope.DocumentHeader
 const documentBody = incommingData.DocumentEnvelope.DocumentBody
 const inovice = incommingData.DocumentEnvelope.DocumentBody.Invoice
+const primaocData = inovice.AccountingCustomerParty.Party
 
 const primalac = document.getElementById("primalac")
 const brojDokumenta = document.getElementById("brojDokumenta")
 const datumKreiranja = document.getElementById("datumKreiranja")
 const datumPlacanja = document.getElementById("datumPlacanja")
 
-primalac.innerText= inovice.BuyerReference["#text"]
+primalac.innerText = primaocData.PartyName.Name["#text"]
 brojDokumenta.innerText= inovice.ID["#text"]
 datumKreiranja.innerText= inovice.IssueDate["#text"]
 datumPlacanja.innerText= inovice.DueDate["#text"]
@@ -99,7 +100,8 @@ const posaljiocData = inovice.AccountingSupplierParty.Party
 
 izdavaoc.innerText = posaljiocData.PartyName.Name["#text"]
 pib_izdavaoc.innerText = posaljiocData.EndpointID["#text"]
-adresa_izdavaoc.innerText = posaljiocData.PostalAddress.StreetName["#text"] + " " + posaljiocData.PostalAddress.AdditionalStreetName["#text"] + ", " + posaljiocData.PostalAddress.CityName["#text"] + ", " + posaljiocData.PostalAddress.PostalZone["#text"] + " " + posaljiocData.PostalAddress.Country.Name["#text"]
+adresa_izdavaoc.innerText = 
+  posaljiocData.PostalAddress.CityName["#text"]
 
 // ZA INFO
 
@@ -107,7 +109,7 @@ const primaoc = document.getElementById("primaoc")
 const pib_primaoc = document.getElementById("pib_primaoc")
 const adresa_primaoc = document.getElementById("adresa_primaoc")
 
-const primaocData = inovice.AccountingCustomerParty.Party
+
 
 primaoc.innerText = primaocData.PartyName.Name["#text"]
 pib_primaoc.innerText = primaocData.EndpointID["#text"]
@@ -119,25 +121,49 @@ const mesto_isporuke = document.getElementById("mesto_isporuke")
 
 const mestoIsporukeData = inovice.Delivery
 
-mesto_isporuke.innerText = 
-  mestoIsporukeData.DeliveryParty.PartyName.Name["#text"] + ", " + 
-  mestoIsporukeData.DeliveryLocation.Address.StreetName["#text"] + ", " + 
-  mestoIsporukeData.DeliveryLocation.Address.PostalZone["#text"] + " " + 
-  mestoIsporukeData.DeliveryLocation.Address.CityName["#text"]
+
 
 // ARTIKLI 
 
 const artikliTabla = document.getElementById("artikli")
 
-const artikliData = inovice.InvoiceLine
+let artikliData = inovice.InvoiceLine
+
+console.log(artikliData.length)
 
 
-
+let posaljiocName = posaljiocData.PartyName.Name["#text"]
 let innerHtmlArtikli = ""
+let itemBarcodeLine = ""
 
-artikliData.slice().reverse().forEach(element => {
+switch (posaljiocName) {
+  case 'Imlek':
+    artikliData = artikliData.slice().reverse();
+    mesto_isporuke.innerText = 
+    mestoIsporukeData.DeliveryParty.PartyName.Name["#text"] + ", " + 
+    mestoIsporukeData.DeliveryLocation.Address.StreetName["#text"] + ", " + 
+    mestoIsporukeData.DeliveryLocation.Address.PostalZone["#text"] + " " + 
+    mestoIsporukeData.DeliveryLocation.Address.CityName["#text"]
+    break;
+}
+
+artikliData.slice().forEach(element => {
+
+  switch (posaljiocName) {
+    case 'AKRIS DOO':
+      itemBarcodeLine = element["ID"]["#text"];
+      break;
+    case 'MERCATOR-S DOO-BEOGR':
+    case 'Imlek':
+      itemBarcodeLine = element.Item.StandardItemIdentification["ID"]["#text"];
+      break;
+    // todo remove the upper statement
+      default:
+      itemBarcodeLine = element.Item.StandardItemIdentification["ID"]["#text"];
+  }
+
   innerHtmlArtikli += "<tr class='table-light' ><th scope='row'>" + 
-  element.Item.StandardItemIdentification.ID["#text"] + "</th><td>" + 
+  itemBarcodeLine + "</th><td>" + 
   element.Item.Name["#text"] + "</th><td>" +
   parseInt(element.Item.ClassifiedTaxCategory.Percent["#text"]) + "%</th><td class='text-end'>" +
   formatMoney(element.InvoicedQuantity["#text"]) + "</th><td class='text-end'>" +
@@ -155,16 +181,33 @@ artikliData.slice().reverse().forEach(element => {
 const totaliTabla = document.getElementById('totali')
 const totaliData = inovice.TaxTotal
 
-totaliTabla.innerHTML = 
-`
-<tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 10%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[0].TaxableAmount["#text"])}</td>
-<tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[1].TaxableAmount["#text"])}</td>
-<tr class='table-light' ><th scope='row' class="text-end">Ukupno bez poreza:</th><td class="text-end">${formatMoney(inovice.LegalMonetaryTotal.TaxExclusiveAmount["#text"])}</td>
-<tr class='table-light' ><th scope='row' class="text-end">Porez za tarifu od 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[0].TaxAmount["#text"])}</td>
-<tr class='table-light' ><th scope='row' class="text-end">Porez za tarifu od 10%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[1].TaxAmount["#text"])}</td>
-<tr class='table-light' ><th scope='row' class="text-end">Ukupan porez:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxAmount["#text"])}</td>
-<tr class='table-light' ><th scope='row' class="text-end">Ukupan iznos:</th><td class='lead text-end'><strong>${formatMoney(inovice.LegalMonetaryTotal.TaxInclusiveAmount["#text"])}</strong></td>
-`
+let innerHtmlData = ""
+
+switch (posaljiocName) {
+  case 'AKRIS DOO':
+    innerHtmlData += `
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal.TaxableAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupno bez poreza:</th><td class="text-end">${formatMoney(inovice.LegalMonetaryTotal.TaxExclusiveAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Porez za tarifu od 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal.TaxAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupan porez:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupan iznos:</th><td class='lead text-end'><strong>${formatMoney(inovice.LegalMonetaryTotal.TaxInclusiveAmount["#text"])}</strong></td>
+    `
+    break;
+  default:
+    innerHtmlData += `
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 10%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[0].TaxableAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[1].TaxableAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupno bez poreza:</th><td class="text-end">${formatMoney(inovice.LegalMonetaryTotal.TaxExclusiveAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Porez za tarifu od 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[0].TaxAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Porez za tarifu od 10%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal[1].TaxAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupan porez:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxAmount["#text"])}</td>
+    <tr class='table-light' ><th scope='row' class="text-end">Ukupan iznos:</th><td class='lead text-end'><strong>${formatMoney(inovice.LegalMonetaryTotal.TaxInclusiveAmount["#text"])}</strong></td>
+    `;
+}
+
+
+totaliTabla.innerHTML = innerHtmlData
+
 }
 
 
