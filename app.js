@@ -148,7 +148,7 @@ switch (posaljiocName) {
 }
 
 artikliData.slice().forEach(element => {
-
+  console.log(element.Item.StandardItemIdentification !== undefined)
   switch (posaljiocName) {
     case 'AKRIS DOO':
       itemBarcodeLine = element["ID"]["#text"];
@@ -159,7 +159,8 @@ artikliData.slice().forEach(element => {
       break;
     // todo remove the upper statement
       default:
-      itemBarcodeLine = element.Item.StandardItemIdentification["ID"]["#text"];
+      element.Item.StandardItemIdentification !== undefined ?  itemBarcodeLine = element.Item.StandardItemIdentification["ID"]["#text"] : itemBarcodeLine = "undefined"
+      ;
   }
 
   innerHtmlArtikli += "<tr class='table-light' ><th scope='row'>" + 
@@ -185,6 +186,7 @@ let innerHtmlData = ""
 
 switch (posaljiocName) {
   case 'AKRIS DOO':
+  case 'D Way d.o.o. D Way d.o.o. Beograd':
     innerHtmlData += `
     <tr class='table-light' ><th scope='row' class="text-end">Ukupno po PS 20%:</th><td class="text-end">${formatMoney(inovice.TaxTotal.TaxSubtotal.TaxableAmount["#text"])}</td>
     <tr class='table-light' ><th scope='row' class="text-end">Ukupno bez poreza:</th><td class="text-end">${formatMoney(inovice.LegalMonetaryTotal.TaxExclusiveAmount["#text"])}</td>
