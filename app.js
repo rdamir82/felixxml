@@ -77,8 +77,13 @@ function renderData(incommingData) {
 
 const documentHeader = incommingData.DocumentEnvelope.DocumentHeader
 const documentBody = incommingData.DocumentEnvelope.DocumentBody
-const inovice = incommingData.DocumentEnvelope.DocumentBody.Invoice
+let inovice = incommingData.DocumentEnvelope.DocumentBody.Invoice
+console.log("inovice: " + inovice)
+if(inovice === undefined){
+  inovice = incommingData.DocumentEnvelope.DocumentBody.CreditNote
+}
 const primaocData = inovice.AccountingCustomerParty.Party
+const posaljiocData = inovice.AccountingSupplierParty.Party
 
 const primalac = document.getElementById("primalac")
 const brojDokumenta = document.getElementById("brojDokumenta")
@@ -88,7 +93,7 @@ const datumPlacanja = document.getElementById("datumPlacanja")
 primalac.innerText = primaocData.PartyName.Name["#text"]
 brojDokumenta.innerText= inovice.ID["#text"]
 datumKreiranja.innerText= inovice.IssueDate["#text"]
-datumPlacanja.innerText= inovice.DueDate["#text"]
+// datumPlacanja.innerText= inovice.DueDate["#text"]
 
 // OD INFO
 
@@ -96,7 +101,7 @@ const izdavaoc = document.getElementById("izdavaoc")
 const pib_izdavaoc = document.getElementById("pib_izdavaoc")
 const adresa_izdavaoc = document.getElementById("adresa_izdavaoc")
 
-const posaljiocData = inovice.AccountingSupplierParty.Party
+// const posaljiocData = inovice.AccountingSupplierParty.Party
 
 izdavaoc.innerText = posaljiocData.PartyName.Name["#text"]
 pib_izdavaoc.innerText = posaljiocData.EndpointID["#text"]
@@ -119,20 +124,31 @@ adresa_primaoc.innerText = primaocData.PostalAddress.StreetName["#text"] + ", " 
 
 const mesto_isporuke = document.getElementById("mesto_isporuke")
 
-const mestoIsporukeData = inovice.Delivery
+let mestoIsporukeData
+let posaljiocName = posaljiocData.PartyName.Name["#text"]
+console.log("posaljiocName:" + posaljiocName)
+if(posaljiocName == 'Imlek'){
+  mestoIsporukeData = inovice.AccountingCustomerParty
+} else {
+  mestoIsporukeData = inovice.Delivery
+}
 
 
 
 // ARTIKLI 
 
 const artikliTabla = document.getElementById("artikli")
-
-let artikliData = inovice.InvoiceLine
+let artikliData
+if(posaljiocName == 'Imlek'){
+  artikliData = inovice.CreditNoteLine
+} else {
+  artikliData = inovice.InvoiceLine
+}
 
 console.log(artikliData.length)
 
 
-let posaljiocName = posaljiocData.PartyName.Name["#text"]
+
 let innerHtmlArtikli = ""
 let itemBarcodeLine = ""
 
@@ -140,10 +156,10 @@ switch (posaljiocName) {
   case 'Imlek':
     artikliData = artikliData.slice().reverse();
     mesto_isporuke.innerText = 
-    mestoIsporukeData.DeliveryParty.PartyName.Name["#text"] + ", " + 
-    mestoIsporukeData.DeliveryLocation.Address.StreetName["#text"] + ", " + 
-    mestoIsporukeData.DeliveryLocation.Address.PostalZone["#text"] + " " + 
-    mestoIsporukeData.DeliveryLocation.Address.CityName["#text"]
+    mestoIsporukeData.Party.PartyName.Name["#text"] + ", " + 
+    mestoIsporukeData.Party.PostalAddress.StreetName["#text"] + ", " + 
+    mestoIsporukeData.Party.PostalAddress.PostalZone["#text"] + " " + 
+    mestoIsporukeData.Party.PostalAddress.CityName["#text"]
     break;
 }
 
@@ -166,15 +182,21 @@ artikliData.slice().forEach(element => {
       element.Item.StandardItemIdentification !== undefined ?  itemBarcodeLine = element.Item.StandardItemIdentification["ID"]["#text"] : itemBarcodeLine = "undefined"
       ;
   }
-
+  let quantity
+  if(posaljiocName == 'Imlek'){
+    quantity = element.CreditedQuantity["#text"]
+  } else {
+    quantity = element.InvoicedQuantity["#text"]
+  }
+  
   innerHtmlArtikli += "<tr class='table-light' ><th scope='row'>" + 
   element.ID["#text"] + "</th><td>" + 
   itemBarcodeLine + "</th><td>" + 
   element.Item.Name["#text"] + "</th><td>" +
   parseInt(element.Item.ClassifiedTaxCategory.Percent["#text"]) + "%</th><td class='text-end'>" +
-  formatMoney(element.InvoicedQuantity["#text"]) + "</th><td class='text-end'>" +
+  formatMoney(quantity) + "</th><td class='text-end'>" +
   formatMoney(element.Price.PriceAmount["#text"]) + "</th><td class='text-end'>" +
-  formatMoney(element.LineExtensionAmount["#text"] / element.InvoicedQuantity["#text"]) + "</th><td class='text-end'>" +
+  formatMoney(element.LineExtensionAmount["#text"] / quantity) + "</th><td class='text-end'>" +
   formatMoney(element.LineExtensionAmount["#text"]) + "</th></tr> "
   })
 
