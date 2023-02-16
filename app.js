@@ -173,10 +173,6 @@ artikliData.slice().forEach(element => {
     case 'Imlek':
       itemBarcodeLine = element.Item.StandardItemIdentification["ID"]["#text"];
       break;
-    case 'M A R A doo':
-      itemBarcodeLine = element.Item.SellersItemIdentification["ID"]["#text"];
-      break;
-
     // todo remove the upper statement
       default:
       element.Item.StandardItemIdentification !== undefined ?  itemBarcodeLine = element.Item.StandardItemIdentification["ID"]["#text"] : itemBarcodeLine = "undefined"
@@ -190,7 +186,6 @@ artikliData.slice().forEach(element => {
   }
   
   innerHtmlArtikli += "<tr class='table-light' ><th scope='row'>" + 
-  element.ID["#text"] + "</th><td>" + 
   itemBarcodeLine + "</th><td>" + 
   element.Item.Name["#text"] + "</th><td>" +
   parseInt(element.Item.ClassifiedTaxCategory.Percent["#text"]) + "%</th><td class='text-end'>" +
